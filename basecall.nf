@@ -1,48 +1,56 @@
 #!/usr/bin/env nextflow
 
+// import utility functions
+GroovyShell shell = new GroovyShell()
+def utils = shell.parse(new File("utils.groovy"))
 
-// --------- parameter definitions --------- 
+// --------- workflow parameters --------- 
 
-// run for which the pipeline should be executed
-params.run = 'test'
-
-// guppy setup
-params.flowcell = 'FLO-MIN106'
-params.kit = 'SQK-LSK109'
-params.barcode_kits = '"EXP-NBD114 EXP-NBD104"'
 
 // watch for incoming files
-params.set_watcher = true
+params.set_watcher = false
 
 // defines directories for input data and to output basecalled data
-params.input_dir = file("runs/${params.run}/input")
-params.output_dir = file("runs/${params.run}/basecalled")
+params.inputDir = "$projectDir/test_dataset/input"
+params.outputDir ="$projectDir/test_dataset/output"
+inputDir = file(params.inputDir, checkIfExists: true, type: "dir")
+outputDir = file(params.outputDir)
+
+// parameters file
+params.parameterFile = "$projectDir/test_dataset/params_1.tsv"
 
 // get a csv file with number of reads per barcode and time
-// that gets updated online
-params.live_stats = false
+// that gets updated live while basecalling is in process
+params.liveStats = true
 
 // whether to use gpu
-params.use_gpu = false
+params.gpu = false
 
 // path of guppy binaries (cpu or gpu)
-params.guppy_bin_cpu = "$baseDir/guppy/guppy-cpu/bin/guppy_basecaller"
-// params.guppy_bin_cpu = "~/ONT_software/ont-guppy-cpu/bin/guppy_basecaller"
-params.guppy_bin_gpu = "$baseDir/guppy/guppy-cpu/bin/guppy_basecaller"
-// params.guppy_bin_gpu = "~/ONT_software/ont-guppy-gpu/bin/guppy_basecaller"
+params.guppyCpu = "$projectDir/guppy_bin/guppy_basecaller_cpu"
+params.guppyGpu = "$projectDir/guppy_bin/guppy_basecaller_gpu"
+guppy_bin = params.gpu ? params.guppyGpu : params.guppyCpu
+
+// --------- parse parameters from file --------- 
+
+parFile = file(params.parameterFile, checkIfExists: true)
+parDict = utils.createParamDictionary(parFile)
+parDict = utils.formatParamDict(parDict)
+
+// --------- produce log file ---------
+
+log_filename = "${parDict.parDir}/${parDict.parPrefix}_${parDict.timeNow}.log"
+
 
 // --------- workflow --------- 
 
-// guppy binaries
-params.guppy_bin = params.use_gpu ? params.guppy_bin_gpu : params.guppy_bin_cpu
-
 // channel for already loaded fast5 files
-fast5_loaded = Channel.fromPath("${params.input_dir}/*.fast5")
+fast5_loaded = Channel.fromPath("${params.inputDir}/*.fast5")
 
 // watcher channel for incoming `.fast5` files.
 // Terminates when `end-signal.fast5` file is created.
 if ( params.set_watcher ) {
-    fast5_watcher = Channel.watchPath("${params.input_dir}/*.fast5")
+    fast5_watcher = Channel.watchPath("${params.inputDir}/*.fast5")
                             .until { it.name ==~ /end-signal.fast5/ }
 }
 else { fast5_watcher = Channel.empty() }
@@ -55,10 +63,10 @@ fast5_ch = fast5_loaded.concat(fast5_watcher)
 // to perform basecalling and barcoding. The output
 // channel collects a list of files in the form
 // .../(barcodeXX|unclassified)/filename.fastq.gz
-params.add_device = params.use_gpu ? '--device auto' : ''
+add_device = params.gpu ? '--device auto' : ''
 process basecall {
 
-    label params.use_gpu ? 'gpu_q30m' : 'q6h'
+    label params.gpu ? 'gpu_q30m' : 'q6h'
 
     input:
         path fast5_file from fast5_ch
@@ -69,17 +77,17 @@ process basecall {
 
     script:
         """
-        ${params.guppy_bin} \
+        $guppy_bin \
             -i . \
             -s . \
-            --barcode_kits ${params.barcode_kits} \
-            --flowcell ${params.flowcell} \
-            --kit ${params.kit} \
+            --barcode_kits ${parDict.barcode_kits} \
+            --flowcell ${parDict.flow_cell_type} \
+            --kit ${parDict.ligation_kit} \
             --compress_fastq \
             --disable_pings \
             --nested_output_folder \
             --trim_barcodes \
-            ${params.add_device}
+            ${add_device}
         """
 
 }
@@ -100,7 +108,7 @@ process concatenate_and_compress {
 
     label 'q6h'
 
-    publishDir params.output_dir, mode: 'move'
+    publishDir outputDir, mode: 'move'
 
     input:
         tuple val(barcode), file('reads_*.fastq.gz') from fastq_barcode_ch
@@ -115,21 +123,17 @@ process concatenate_and_compress {
     """
 }
 
-// directory to store live statistics on the basecalling
-params.bcstats_dir = file("runs/${params.run}/basecalling_stats")
-
-// if live_stats is set to true, create a file to contain the stats
-if (params.live_stats) {
-    // create directory
-    params.bcstats_dir.mkdirs()
+// if liveStats is set to true, create a file to contain the stats
+bcstats_filename = "${parDict.parPrefix}_basecalling_stats.csv"
+if (params.liveStats) {
     // create csv stats file and write header
-    bc_stats_file = file("${params.bcstats_dir}/bc_stats.csv")
+    bc_stats_file = file("${parDict.parDir}/$bcstats_filename")
     bc_stats_file.text = 'len,barcode,time\n'
 }
 
 // Create the input channel for the stat as a mix of a channel with a single file
 // and the feedback channel
-bc_stats_init = Channel.fromPath("${params.bcstats_dir}/bc_stats.csv")
+bc_stats_init = Channel.fromPath("${parDict.parDir}/$bcstats_filename")
 feedback_ch = Channel.create()
 bc_stats_in = bc_stats_init.mix( feedback_ch )
 
@@ -141,23 +145,23 @@ process basecalling_live_report {
 
     label 'q30m'
 
-    publishDir params.output_dir, mode: 'copy'
+    publishDir parDict.parDir, mode: 'copy'
 
     input:
         file('reads_*.fastq.gz') from fastq_tap_ch.collate(50)
-        file('bc_stats.csv') from bc_stats_in
+        file(bcstats_filename) from bc_stats_in
 
     output:
-        file('bc_stats.csv') into feedback_ch
+        file(bcstats_filename) into feedback_ch
 
     when:
-        params.live_stats
+        params.liveStats
 
     script:
         """
         gzip -dc reads_*.fastq.gz > reads.fastq
-        python3 $baseDir/scripts/basecall_stats.py reads.fastq
-        tail -n +2 basecalling_stats.csv >> bc_stats.csv
+        python3 $projectDir/scripts/basecall_stats.py reads.fastq
+        tail -n +2 basecalling_stats.csv >> $bcstats_filename
         rm reads.fastq
         """
 }

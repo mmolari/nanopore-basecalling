@@ -1,2 +1,7 @@
+.nextflow*
 work
-test_dataset
+guppy_bin
+test_dataset/output
+test_dataset/params_1*
+.vscode
+reports
