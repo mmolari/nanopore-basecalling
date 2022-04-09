@@ -58,7 +58,7 @@ guppy version : GUPPYVER
 gpu execution : ${params.gpu}
 
 ------- BASECALLING PARAMETERS -------
-parameter file : ${params.parameterFile}
+parameter file : ${parFile}
 barcodes       : ${parDict.barcode_id}
 flowcell id    : ${parDict.flow_cell_id}
 flowcell type  : ${parDict.flow_cell_type}
@@ -67,8 +67,8 @@ barcode kits   : ${parDict.barcode_kits}
 nanopore data root dir : ${parDict.nanopore_data_root_dir}
 
 ------- INPUT / OUTPUT DIRECTORIES -------
-input dir  : ${params.inputDir}
-output dir : ${params.outputDir}
+input dir  : ${inputDir}
+output dir : ${outputDir}
 """
 
 // Process that generates the log file. If the gpu version of GUPPY is
