@@ -4,9 +4,9 @@ Basecalling can be executed online while reads are uploaded to the input folder,
 
 ## Setup
 
-1. Have [nextflow](https://www.nextflow.io/) available in your path. This can be easily installed using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
+1. Have [nextflow](https://www.nextflow.io/) (version > 21.10) available in your path. This can be easily installed using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
     ```bash
-    conda create --name nextflow -c bioconda python=3.9 nextflow
+    conda create --name nextflow -c bioconda python=3.9.12 nextflow=21.10
     conda activate nextflow
     ```
 2. Download guppy binaries for gpu/cpu. Symlinks to the binaries should be placed in `guppy_bin/guppy_basecaller_cpu` and `guppy_bin/guppy_basecaller_gpu`. Alternatively the location of the binaries can be specified with the flag `--guppyCpu` and `--guppyGpu` options.
