@@ -8,7 +8,7 @@ def utils = shell.parse(new File("utils.groovy"))
 
 
 // watch for incoming files
-params.set_watcher = false
+params.setWatcher = false
 
 // defines directories for input data and to output basecalled data
 params.inputDir = "$projectDir/test_dataset/input"
@@ -31,6 +31,9 @@ params.guppyCpu = "$projectDir/guppy_bin/guppy_basecaller_cpu"
 params.guppyGpu = "$projectDir/guppy_bin/guppy_basecaller_gpu"
 guppy_bin = params.gpu ? params.guppyGpu : params.guppyCpu
 
+// keep only selected barcodes
+params.filterBarcodes = false
+
 // --------- parse parameters from file --------- 
 
 parFile = file(params.parameterFile, checkIfExists: true)
@@ -39,7 +42,58 @@ parDict = utils.formatParamDict(parDict)
 
 // --------- produce log file ---------
 
-log_filename = "${parDict.parDir}/${parDict.parPrefix}_${parDict.timeNow}.log"
+log_filename = "${parDict.parPrefix}_${parDict.timeNow}.log"
+
+log_text = """
+Log-file for the basecalling executed by the nextflow basecall.nf script.
+Execution time : ${parDict.timeNow}
+Nextflow run id : ${workflow.runName}
+
+------- CODE -------
+The code is stored in the repository : REPOREMOTE
+The current commit is                : COMMITID
+
+------- GUPPY -------
+guppy version : GUPPYVER
+gpu execution : ${params.gpu}
+
+------- BASECALLING PARAMETERS -------
+parameter file : ${params.parameterFile}
+barcodes       : ${parDict.barcode_id}
+flowcell id    : ${parDict.flow_cell_id}
+flowcell type  : ${parDict.flow_cell_type}
+ligation kit   : ${parDict.ligation_kit}
+barcode kits   : ${parDict.barcode_kits}
+nanopore data root dir : ${parDict.nanopore_data_root_dir}
+
+------- INPUT / OUTPUT DIRECTORIES -------
+input dir  : ${params.inputDir}
+output dir : ${params.outputDir}
+"""
+
+// Process that generates the log file. If the gpu version of GUPPY is
+// used then the process must be executed in the same environment in which
+// GUPPY runs (gpu cluster), otherwise the command to retreive the version fails.
+process generate_log_file {
+    
+    label params.gpu ? 'gpu_q30m' : 'q6h'
+
+    publishDir "${parDict.parDir}", mode: 'copy'
+
+    output:
+        path "$log_filename"
+
+    script:
+        """
+        echo "$log_text" > $log_filename
+        REMOTE=\$(git remote -v | head -n 1)
+        COMM=\$(git rev-parse HEAD)
+        GUPPY=\$($guppy_bin -v)
+        sed -i "s|REPOREMOTE|\$REMOTE|g" $log_filename
+        sed -i "s|COMMITID|\$COMM|g" $log_filename
+        sed -i "s|GUPPYVER|\$GUPPY|g" $log_filename
+        """
+}
 
 
 // --------- workflow --------- 
@@ -49,7 +103,7 @@ fast5_loaded = Channel.fromPath("${params.inputDir}/*.fast5")
 
 // watcher channel for incoming `.fast5` files.
 // Terminates when `end-signal.fast5` file is created.
-if ( params.set_watcher ) {
+if ( params.setWatcher ) {
     fast5_watcher = Channel.watchPath("${params.inputDir}/*.fast5")
                             .until { it.name ==~ /end-signal.fast5/ }
 }
@@ -116,6 +170,9 @@ process concatenate_and_compress {
     output:
         file "${barcode}.fastq.gz"
 
+    when:
+        (!params.filterBarcodes) || parDict.barcode_id.contains(barcode[-2..-1])
+
     script:
     """
     # decompress with gzip, concatenate and compress with gz
@@ -138,7 +195,8 @@ feedback_ch = Channel.create()
 bc_stats_in = bc_stats_init.mix( feedback_ch )
 
 // creates a csv file with read length, barcode and timestamp
-// content of the file get appended to the file "bc_stats.csv"
+// content of the file get appended to the file with suffix
+// "basecalling_stats.csv".
 // The feedback loop avoids that multiple threads try to append
 // text on the same file.
 process basecalling_live_report {
@@ -149,10 +207,10 @@ process basecalling_live_report {
 
     input:
         file('reads_*.fastq.gz') from fastq_tap_ch.collate(50)
-        file(bcstats_filename) from bc_stats_in
+        file("$bcstats_filename") from bc_stats_in
 
     output:
-        file(bcstats_filename) into feedback_ch
+        file("$bcstats_filename") into feedback_ch
 
     when:
         params.liveStats
