@@ -181,6 +181,7 @@ process concatenate_and_compress {
     """
     # decompress with gzip, concatenate and compress with gz
     gzip -dc reads_*.fastq.gz | gzip -c > ${barcode}.fastq.gz
+    chmod 444 ${barcode}.fastq.gz
     """
 }
 
