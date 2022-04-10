@@ -154,9 +154,9 @@ fastq_barcode_ch = fastq_ch.flatten()
                     .tap { fastq_tap_ch }
                     .map { x -> [x.getParent().getName(), x] }
                     .groupTuple()
-                    .filter({ x -> 
+                    .filter({ bc, files -> 
                     if (!params.filterBarcodes) {return true}; 
-                    y = x[0].replaceAll("[^0-9.]", "");
+                    y = bc.replaceAll("[^0-9.]", "");
                     return (y.length() > 0) && (parDict.barcode_id.contains(y as Integer))
                     })
 
