@@ -3,4 +3,3 @@ barcode_id	experiment_id	sample_id	research_group	requester	species_taxid	strain
 22	reto_test	vial_02_time_01	neher	Marco Molari	562	K-12	None	FAK00761_7813b240	FLO-MIN106	SQK-LSK109	EXP-NBD114 EXP-NBD104	/scicore/home/nccr-antiresist/GROUP/unibas/neher/nanopore_runs
 23	reto_test	vial_04_time_01	neher	Marco Molari	562	K-12	None	FAK00761_7813b240	FLO-MIN106	SQK-LSK109	EXP-NBD114 EXP-NBD104	/scicore/home/nccr-antiresist/GROUP/unibas/neher/nanopore_runs
 24	reto_test	vial_05_time_01	neher	Marco Molari	562	K-12	None	FAK00761_7813b240	FLO-MIN106	SQK-LSK109	EXP-NBD114 EXP-NBD104	/scicore/home/nccr-antiresist/GROUP/unibas/neher/nanopore_runs
-25	reto_test	vial_03_time_01	neher	Marco Molari	562	K-12	None	FAK00761_7813b240	FLO-MIN106	SQK-LSK109	EXP-NBD114 EXP-NBD104	/scicore/home/nccr-antiresist/GROUP/unibas/neher/nanopore_runs

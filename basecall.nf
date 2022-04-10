@@ -31,6 +31,9 @@ params.guppyCpu = "$projectDir/guppy_bin/guppy_basecaller_cpu"
 params.guppyGpu = "$projectDir/guppy_bin/guppy_basecaller_gpu"
 guppy_bin = params.gpu ? params.guppyGpu : params.guppyCpu
 
+// keep only selected barcodes
+params.filterBarcodes = false
+
 // --------- parse parameters from file --------- 
 
 parFile = file(params.parameterFile, checkIfExists: true)
@@ -145,10 +148,17 @@ process basecall {
 
 // Group results by barcode using the name of the parent
 // folder in which files are stored (created by guppy)
+// Optionally filter out barcodes that are not present in the 
+// barcode list.
 fastq_barcode_ch = fastq_ch.flatten()
                     .tap { fastq_tap_ch }
                     .map { x -> [x.getParent().getName(), x] }
                     .groupTuple()
+                    .filter({ x -> 
+                    if (!params.filterBarcodes) {return true}; 
+                    y = x[0].replaceAll("[^0-9.]", "");
+                    return (y.length() > 0) && (parDict.barcode_id.contains(y as Integer))
+                    })
 
 // This process takes as input a tuple composed of a barcode
 // and a list of fastq.gz files corresponding to that barcode.
