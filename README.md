@@ -63,7 +63,3 @@ Every time the workflow is launched a log file named `{params}_{time}.log` is cr
 - version of the guppy basecaller used, and whether the gpu version was used.
 - path of the parameter file and relevant parameters (list of barcodes, flowcell id, flowcell type, ligation kit, barcode kits)
 - input and output directories
-
-## Other options
-
-If `--filterBarcodes true` is specified, then only the `barcodeXX.fastq.gz` files corresponding to barcodes present in the parameter file are produced. Other barcodes (usually corresponding to mis-classfications) are excluded.

@@ -31,9 +31,6 @@ params.guppyCpu = "$projectDir/guppy_bin/guppy_basecaller_cpu"
 params.guppyGpu = "$projectDir/guppy_bin/guppy_basecaller_gpu"
 guppy_bin = params.gpu ? params.guppyGpu : params.guppyCpu
 
-// keep only selected barcodes
-params.filterBarcodes = false
-
 // --------- parse parameters from file --------- 
 
 parFile = file(params.parameterFile, checkIfExists: true)
@@ -169,9 +166,6 @@ process concatenate_and_compress {
 
     output:
         file "${barcode}.fastq.gz"
-
-    when:
-        (!params.filterBarcodes) || parDict.barcode_id.contains(barcode[-2..-1])
 
     script:
     """

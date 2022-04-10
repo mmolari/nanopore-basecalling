@@ -46,7 +46,11 @@ def formatParamDict(parDict) {
     newParDict.barcode_kits = "\"" + newParDict.barcode_kits.replace("\"","") + "\""
 
     // list of valid barcodes
-    newParDict["barcode_id"] = parDict["barcode_id"]
+    newParDict["barcode_id"] = []
+    for (x in parDict.barcode_id) {
+        newParDict["barcode_id"].add(x as Integer)
+    }
+
 
     // capture timestamp
     newParDict["timeNow"] = (new Date()).format("yyyy-MM-dd--HH-mm-ss")
