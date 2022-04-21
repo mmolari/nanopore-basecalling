@@ -46,8 +46,8 @@ log_filename = "${parDict.parPrefix}_${parDict.timeNow}.log"
 
 log_text = """
 Log-file for the basecalling executed by the nextflow basecall.nf script.
-Execution time : ${parDict.timeNow}
-Nextflow run id : ${workflow.runName}
+Execution time     : ${parDict.timeNow}
+Nextflow run label : ${workflow.runName}
 
 ------- CODE -------
 The code is stored in the repository : REPOREMOTE
