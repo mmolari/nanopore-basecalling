@@ -60,14 +60,14 @@ parser.add_argument(
 parser.add_argument(
     "--allow_missing_barcodes",
     help="Do not raise an error if one or more expected barcodes are missing.",
-    type=bool,
     default=False,
+    action="store_true",
 )
 parser.add_argument(
     "--skip_present_barcodes",
     help="Do not raise an error if one or more expected barcodes are already present in the destination folder.",
-    type=bool,
     default=False,
+    action="store_true",
 )
 
 # extract arguments
@@ -164,22 +164,21 @@ for idx, row in par.iterrows():
         df = pd.read_csv(sample_info)
 
     # check that the sample id is not already present.
-    if df.size > 0:
-        if sample_id in df["sample_id"]:
-            if args.skip_present_barcodes:
-                print(
-                    f"WARNING: sample {sample_id} is already registered in {sample_info}"
-                )
-            else:
-                assert (
-                    False
-                ), f"Error: sample {sample_id} is already registered in {sample_info}"
+    if (df.size > 0) and (sample_id in list(df["sample_id"])):
+        if args.skip_present_barcodes:
+            print(
+                f"WARNING: skipping sample {sample_id}, already registered in {sample_info}"
+            )
+        else:
+            assert (
+                False
+            ), f"Error: sample {sample_id} is already registered in {sample_info}"
+    else:
+        # add the corresponding line, together with information on the source
+        row_dict = row.to_dict()
+        row_dict["original_fastq_file"] = str(src_file.absolute())
+        add_df = pd.DataFrame(pd.Series(row_dict)).T
+        new_df = pd.concat([df, add_df], ignore_index=True).sort_values("sample_id")
 
-    # add the corresponding line, together with information on the source
-    row_dict = row.to_dict()
-    row_dict["original_fastq_file"] = str(src_file.absolute())
-    add_df = pd.DataFrame(pd.Series(row_dict)).T
-    new_df = pd.concat([df, add_df], ignore_index=True).sort_values("sample_id")
-
-    # save dataframe
-    new_df.to_csv(sample_info, index=False)
+        # save dataframe
+        new_df.to_csv(sample_info, index=False)
