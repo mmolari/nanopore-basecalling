@@ -67,3 +67,36 @@ Every time the workflow is launched a log file named `{params}_{time}.log` is cr
 ## Other options
 
 If `--filterBarcodes true` is specified, then only the `barcodeXX.fastq.gz` files corresponding to barcodes present in the parameter file are produced. Other barcodes (usually corresponding to mis-classfications) are excluded.
+
+## Archive the run
+
+After basecalling is complete, the script `scripts/archive_run.py` can be used to archive the reads in an experiment folder. The script has the following usage:
+
+```
+usage: archive_run.py [-h] --reads_fld READS_FLD --param_file PARAM_FILE --archive_fld ARCHIVE_FLD
+                      [--allow_missing_barcodes ALLOW_MISSING_BARCODES] [--skip_present_barcodes SKIP_PRESENT_BARCODES]
+
+Script used to archive the results of basecalling in the experiment folder. It subdivides the reads in folders based on the experiment id,
+creating symlinks to the original files. It also creates (or updates) a sample_info.csv file containing the information on the samples
+stored in each folder.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --reads_fld READS_FLD
+                        the source folder, containing the reads for the sequencing run. These are in fastq.gz format.
+  --param_file PARAM_FILE
+                        the parameters.tsv file containing information on every sample.
+  --archive_fld ARCHIVE_FLD
+                        the destination archive folder, containing one subfolder per experiment.
+  --allow_missing_barcodes ALLOW_MISSING_BARCODES
+                        Do not raise an error if one or more expected barcodes are missing.
+  --skip_present_barcodes SKIP_PRESENT_BARCODES
+                        Do not raise an error if one or more expected barcodes are already present in the destination folder.
+```
+
+The mandatory arguments are:
+- `reads_fld` is the folder containing the reads for every barcode, saved as `barcodeXX.fastq.gz`.
+- `param_file` is the `.tsv` file containing info on the link between each barcode and the corresponding experimental conditions.
+- `archive_fld` is the `experiments` archive folder. The script will take care of creating sub-folders with the name of the experiments, where link to the reads are stored. These are named as `<date>_<research_group>_<experiment_id>`, where the last two parts are extracted from the parameter file, and the date is the date of first archiviation.
+
+The script requires `pandas` to be installed. This can simply be installed with `conda install -c conda-forge pandas`.
