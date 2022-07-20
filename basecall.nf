@@ -118,6 +118,7 @@ fast5_ch = fast5_loaded.concat(fast5_watcher)
 // channel collects a list of files in the form
 // .../(barcodeXX|unclassified)/filename.fastq.gz
 add_device = params.gpu ? '--device auto' : ''
+add_barcode_kits = parDict.barcode_kits == '""' ? '' : '--barcode_kits ' + parDict.barcode_kits
 process basecall {
 
     label params.gpu ? 'gpu_q30m' : 'q6h'
@@ -134,13 +135,13 @@ process basecall {
         $guppy_bin \
             -i . \
             -s . \
-            --barcode_kits ${parDict.barcode_kits} \
             --flowcell ${parDict.flow_cell_type} \
             --kit ${parDict.ligation_kit} \
             --compress_fastq \
             --disable_pings \
             --nested_output_folder \
             --trim_barcodes \
+            ${add_barcode_kits} \
             ${add_device}
         """
 
