@@ -1,5 +1,5 @@
 USER='d_nanopore'
-SERVER='login.scicore.unibas.ch'
+SERVER='login-transfer.scicore.unibas.ch'
 # without trailing slash, this will create a directory at destination
 DEST='genome-assembly-pipeline/genome-assembly/runs/2022_01_14_Alex_Sequencing/input'
 READS='/var/lib/minknow/data/2022_01_14_Alex_Sequencing/no_sample/20220114_1326_MN23519_FAL02190_89855126/fast5/'
