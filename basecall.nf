@@ -88,7 +88,7 @@ process generate_log_file {
         echo "$log_text" > $log_filename
         REMOTE=\$(git remote -v | head -n 1)
         COMM=\$(git rev-parse HEAD)
-        GUPPY=\$($guppy_bin -v)
+        GUPPY=\$($guppy_bin -v | head -n 1)
         sed -i "s|REPOREMOTE|\$REMOTE|g" $log_filename
         sed -i "s|COMMITID|\$COMM|g" $log_filename
         sed -i "s|GUPPYVER|\$GUPPY|g" $log_filename
@@ -118,7 +118,7 @@ fast5_ch = fast5_loaded.concat(fast5_watcher)
 // channel collects a list of files in the form
 // .../(barcodeXX|unclassified)/filename.fastq.gz
 add_device = params.gpu ? '--device auto' : ''
-add_barcode_kits = parDict.barcode_kits == '""' ? '' : '--barcode_kits ' + parDict.barcode_kits
+add_barcode_kits = parDict.barcode_kits == '""' ? '--detect_barcodes' : '--barcode_kits ' + parDict.barcode_kits
 process basecall {
 
     label params.gpu ? 'gpu_q30m' : 'q6h'
