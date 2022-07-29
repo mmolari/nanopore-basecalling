@@ -52,7 +52,7 @@ In order to terminated the workflow and produce `fastq` files with the read, it 
 ## live basecalling stats
 
 Unless `--liveStats false` is specified, the workflow will produce a `csv` file named `{params}_basecalling_stats.csv`, where `{params}` is the prefix of the parameters tsv file. This is placed in the same folder as the parameter file. This file is updated live as the basecalling proceeds, with each row corresponding to a single read. The file contains three columns: `len`,`barcode`,`time`. These contain the read length, the corresponding assigned barcode and the time in which it was basecalled.
-This file can be used to estimate the length of reads and the barcode distribution, while the basecalling workflow is in progress.
+This file can be used to estimate the length of reads and the barcode distribution, while the basecalling workflow is in progress. The script `scripts/basecall_stats_plots.py` can be used to produce plots to visualize read count and length distribution stratified by barcode. See `scripts/basecall_stats_plots.py --help` for usage.
 
 ## Log-file
 
