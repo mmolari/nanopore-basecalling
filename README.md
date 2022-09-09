@@ -39,7 +39,7 @@ The parameter file, passed with the `--parameterFile` option, must be a `tsv` fi
 - `barcode_id` : the barcode number.
 - `flow_cell_type` : the flowcell type, e.g., `FLO-MIN106`. This corresponds to the `--flowcell` option for guppy. It must be the same for all columns.
 - `ligation_kit` : the ligation kit used, e.g. `SQK-LSK109`. This is passed to guppy as the `--kit` option. It must be the same for all columns.
-- `barcode_kits` : list of barcode kits separated by spaces, e.g. `EXP-NBD114 EXP-NBD104`. This is passed to guppy as the `--barcode_kits` option. It must be the same for all columns.
+- `barcode_kits` : list of barcode kits separated by spaces, e.g. `EXP-NBD114 EXP-NBD104`. This is passed to guppy as the `--barcode_kits` option. It must be the same for all columns. If can also be left empty, in which case the `--barcode_kits` argument is not passed to guppy.
 
 Guppy is run with the `--trim_barcodes` flag, so that barcodes are removed from the reads.
 
