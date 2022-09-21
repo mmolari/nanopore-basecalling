@@ -102,6 +102,9 @@ The mandatory arguments are:
 - `reads_fld` is the folder containing the reads for every barcode, saved as `barcodeXX.fastq.gz`.
 - `param_file` is the `.tsv` file containing info on the link between each barcode and the corresponding experimental conditions.
 - `archive_fld` is the `experiments` archive folder. The script will take care of creating sub-folders with the name of the experiments, where link to the reads are stored. These are named as `<date>_<research_group>_<experiment_id>`, where the last two parts are extracted from the parameter file, and the date is the date of first archiviation.
+The optional arguments are:
+- if `--overwrite` is specified then barcodes that are already present in the experiment folders are removed and substituted.
+- if `--only_barcodes 3 5 7` is specified then only samples corresponding to barcodes 3,5,7 are archived.
 
 Upon successful completion the script also updates an `archive_log.txt` file in the `--archive_fld` directory, with a list of archived barcodes.
 
@@ -119,8 +122,3 @@ experiments/
 │           └── <sample-id-n>_<flowcell-id-n>_barcode<barcode-n>.fastq.gz ->  symlink to corresponding file
 └── archive_log.txt
 ```
-
-### Optional arguments
-
-- if `--overwrite` is specified then barcodes that are already present in the experiment folders are removed and substituted.
-- if `--only_barcodes 3 5 7` is specified then only samples corresponding to barcodes 3,5,7 are archived.
