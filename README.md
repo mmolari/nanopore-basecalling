@@ -70,15 +70,17 @@ If `--filterBarcodes true` is specified, then only the `barcodeXX.fastq.gz` file
 
 ## Archive the run
 
-After basecalling is complete, the script `scripts/archive_run.py` can be used to archive the reads in an experiment folder. The script has the following usage:
+After basecalling is complete, the script `scripts/archive_run.py` can be used to archive the reads in an experiment folder.
+It requires `pandas` to be installed. This can simply be installed with `conda install -c conda-forge pandas`.
+The script has the following usage:
 
 ```
-usage: archive_run.py [-h] --reads_fld READS_FLD --param_file PARAM_FILE --archive_fld ARCHIVE_FLD
-                      [--allow_missing_barcodes ALLOW_MISSING_BARCODES] [--skip_present_barcodes SKIP_PRESENT_BARCODES]
+usage: archive_run.py [-h] --reads_fld READS_FLD --param_file PARAM_FILE [--archive_fld ARCHIVE_FLD] [--overwrite] [--only_barcodes [ONLY_BARCODES ...]]
 
-Script used to archive the results of basecalling in the experiment folder. It subdivides the reads in folders based on the experiment id,
-creating symlinks to the original files. It also creates (or updates) a sample_info.csv file containing the information on the samples
-stored in each folder.
+Script used to archive the results of basecalling in the experiment folder.
+It subdivides the reads in folders based on the experiment id, creating symlinks
+to the original files. It also creates (or updates) a sample_info.csv file
+containing the information on the samples stored in each folder.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -88,10 +90,12 @@ optional arguments:
                         the parameters.tsv file containing information on every sample.
   --archive_fld ARCHIVE_FLD
                         the destination archive folder, containing one subfolder per experiment.
-  --allow_missing_barcodes ALLOW_MISSING_BARCODES
-                        Do not raise an error if one or more expected barcodes are missing.
-  --skip_present_barcodes SKIP_PRESENT_BARCODES
-                        Do not raise an error if one or more expected barcodes are already present in the destination folder.
+                        (default: /scicore/home/nccr-antiresist/GROUP/unibas/neher/experiments)
+  --overwrite           Do not raise an error if one or more barcodes are already present and overwrite them.
+                        (default: False)
+  --only_barcodes [ONLY_BARCODES ...]
+                        Only process the specified barcodes. Space-separated list of numbers (e.g. --only_barcodes 1 2 44 )
+                        (default: None)
 ```
 
 The mandatory arguments are:
@@ -99,4 +103,24 @@ The mandatory arguments are:
 - `param_file` is the `.tsv` file containing info on the link between each barcode and the corresponding experimental conditions.
 - `archive_fld` is the `experiments` archive folder. The script will take care of creating sub-folders with the name of the experiments, where link to the reads are stored. These are named as `<date>_<research_group>_<experiment_id>`, where the last two parts are extracted from the parameter file, and the date is the date of first archiviation.
 
-The script requires `pandas` to be installed. This can simply be installed with `conda install -c conda-forge pandas`.
+Upon successful completion the script also updates an `archive_log.txt` file in the `--archive_fld` directory, with a list of archived barcodes.
+
+The generated folder structure looks like this:
+
+```
+experiments/
+├── <date>_<research-group>_<experiment-id>
+│   ├── sample_info.csv (dataframe with list of samples archived, one per file)
+│   └── samples (folder with one sample per subfolder)
+│       ├── <sample-id-1>
+│       │   └── <sample-id-1>_<flowcell-id-1>_barcode<barcode-1>.fastq.gz ->  symlink to corresponding file
+│       ...
+│       └── <sample-id-n>
+│           └── <sample-id-n>_<flowcell-id-n>_barcode<barcode-n>.fastq.gz ->  symlink to corresponding file
+└── archive_log.txt
+```
+
+### Optional arguments
+
+- if `--overwrite` is specified then barcodes that are already present in the experiment folders are removed and substituted.
+- if `--only_barcodes 3 5 7` is specified then only samples corresponding to barcodes 3,5,7 are archived.
