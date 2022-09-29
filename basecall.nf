@@ -140,7 +140,6 @@ process basecall {
             --compress_fastq \
             --disable_pings \
             --nested_output_folder \
-            --trim_barcodes \
             ${add_barcode_kits} \
             ${add_device}
         """
