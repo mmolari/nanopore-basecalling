@@ -11,6 +11,8 @@ Basecalling can be executed online while reads are uploaded to the input folder,
     ```
 2. Download guppy binaries for gpu/cpu. Symlinks to the binaries should be placed in `guppy_bin/guppy_basecaller_cpu` and `guppy_bin/guppy_basecaller_gpu`. Alternatively the location of the binaries can be specified with the flag `--guppyCpu` and `--guppyGpu` options.
 
+> **Nb:** the pipeline has been developed using guppy version `6.3.7+532d626`. Compatibility with other versions is not guaranteed.
+
 ## Minimal Usage
 
 Given an input directory containing `fast5` files and a desired output directory, the workflow will perform the basecalling of these files, and save the resulting reads in the output directory in format `barcodeXX.fastq.gz`, where `XX` indicates the number of the barcode used.
