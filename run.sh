@@ -6,4 +6,4 @@ nextflow run basecall.nf \
     --setWatcher true \
     --gpu true \
     --liveStats true \
-    --resume
+    -resume
