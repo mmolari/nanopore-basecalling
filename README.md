@@ -6,12 +6,12 @@ Basecalling can be executed online while reads are uploaded to the input folder,
 
 1. Have [nextflow](https://www.nextflow.io/) (version > 21.10) available in your path. This can be easily installed using [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html)
     ```bash
-    conda create --name nextflow -c bioconda python=3.9.12 nextflow=21.10
+    conda create --name nextflow -c bioconda python=3.9.12 nextflow=22.10
     conda activate nextflow
     ```
 2. Download guppy binaries for gpu/cpu. Symlinks to the binaries should be placed in `guppy_bin/guppy_basecaller_cpu` and `guppy_bin/guppy_basecaller_gpu`. Alternatively the location of the binaries can be specified with the flag `--guppyCpu` and `--guppyGpu` options.
 
-> **Nb:** the pipeline has been developed using guppy version `6.3.7+532d626`. Compatibility with other versions is not guaranteed.
+> **Nb:** the pipeline has been developed using guppy version `6.3.7`. Compatibility with other versions is not guaranteed.
 
 ## Minimal Usage
 
@@ -20,8 +20,8 @@ Given an input directory containing `fast5` files and a desired output directory
 ```bash
 nextflow run basecall.nf \
     -profile cluster \
-    --inputDir test_dataset/input \
-    --outputDir test_dataset/output \
+    --inputDir test_dataset/raw \
+    --outputDir test_dataset/basecalled \
     --parameterFile test_dataset/params.tsv \
     --setWatcher true \
     --gpu true \
@@ -33,6 +33,8 @@ nextflow run basecall.nf \
 - `--parameterFile` is used to specify the parameter file, from which some options for the basecalling are parsed. See below for the format of this file.
 - if `--setWatcher true` is specified then new basecalling jobs are dispatched live as new `fast5` files get uploaded in the input directory. See below for details.
 - if the option `--gpu true` is specified then basecalling is performed on gpu. Otherwise the cpu version of guppy is used.
+
+For convenience the `run.sh` bash script is provided to launch a standard run with watcher activated. It takes as only argument the data folder in which the `raw` and `basecalled` subfolder are located. It can be modified by the user according to the desired pipeline parameters. 
 
 ## Parameter file and guppy parameters
 

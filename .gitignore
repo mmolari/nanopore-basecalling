@@ -2,7 +2,9 @@
 work
 guppy_bin
 test_dataset/output
-test_dataset/params_1*
+test_dataset/params_*
 .vscode
 reports
 experiments
+archive_test
+makefile
