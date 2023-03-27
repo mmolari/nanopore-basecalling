@@ -197,7 +197,8 @@ if (params.liveStats) {
 // and the feedback channel
 bc_stats_init = Channel.fromPath("${parDict.parDir}/$bcstats_filename")
 feedback_ch = Channel.create()
-bc_stats_in = bc_stats_init.mix( feedback_ch )
+bc_stats_in = params.liveStats ? bc_stats_init.mix( feedback_ch ) : Channel.empty()
+bc_files_in = params.liveStats ? fastq_tap_ch.collate(50) : Channel.empty()
 
 // creates a csv file with read length, barcode and timestamp
 // content of the file get appended to the file with suffix
@@ -211,7 +212,7 @@ process basecalling_live_report {
     publishDir parDict.parDir, mode: 'copy'
 
     input:
-        file('reads_*.fastq.gz') from fastq_tap_ch.collate(50)
+        file('reads_*.fastq.gz') from bc_files_in
         file("$bcstats_filename") from bc_stats_in
 
     output:
