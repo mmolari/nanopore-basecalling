@@ -41,11 +41,8 @@ For convenience the `run.sh` bash script is provided to launch a standard run wi
 The parameter file, passed with the `--parameterFile` option, must be a `tsv` file in which each row corresponds to a different barcode. The file can be generated from the template `nanopore_sequencing_params_template.ods`. The relevant columns are:
 
 - `barcode_id` : the barcode number.
-- `flow_cell_type` : the flowcell type, e.g., `FLO-MIN106`. This corresponds to the `--flowcell` option for guppy. It must be the same for all columns.
-- `ligation_kit` : the ligation kit used, e.g. `SQK-LSK109`. This is passed to guppy as the `--kit` option. It must be the same for all columns.
+- `guppy_config_file`: the config file used (e.g. `dna_r9.4.1_450bps_hac.cfg`), passed as `-c` option to the guppy basecaller.
 - `barcode_kits` : list of barcode kits separated by spaces, e.g. `EXP-NBD114 EXP-NBD104`. This is passed to guppy as the `--barcode_kits` option. It must be the same for all columns. If can also be left empty, in which case the `--barcode_kits` argument is not passed to guppy.
-
-Guppy is run with the `--trim_barcodes` flag, so that barcodes are removed from the reads.
 
 ## Upload Watcher
 

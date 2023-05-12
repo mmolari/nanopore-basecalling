@@ -11,13 +11,13 @@ def utils = shell.parse(new File("utils.groovy"))
 params.setWatcher = false
 
 // defines directories for input data and to output basecalled data
-params.inputDir = "$projectDir/test_dataset/input"
-params.outputDir ="$projectDir/test_dataset/output"
+params.inputDir = "$projectDir/test_dataset/raw"
+params.outputDir ="$projectDir/test_dataset/basecalled"
 inputDir = file(params.inputDir, checkIfExists: true, type: "dir")
 outputDir = file(params.outputDir)
 
 // parameters file
-params.parameterFile = "$projectDir/test_dataset/params_1.tsv"
+params.parameterFile = "$projectDir/test_dataset/params.tsv"
 
 // get a csv file with number of reads per barcode and time
 // that gets updated live while basecalling is in process
@@ -62,7 +62,8 @@ parameter file : ${parFile}
 barcodes       : ${parDict.barcode_id}
 flowcell id    : ${parDict.flow_cell_id}
 flowcell type  : ${parDict.flow_cell_type}
-ligation kit   : ${parDict.ligation_kit}
+kit            : ${parDict.ligation_kit}
+guppy config   : ${parDict.guppy_config_file}
 barcode kits   : ${parDict.barcode_kits}
 nanopore data root dir : ${parDict.nanopore_data_root_dir}
 
@@ -135,8 +136,7 @@ process basecall {
         $guppy_bin \
             -i . \
             -s . \
-            --flowcell ${parDict.flow_cell_type} \
-            --kit ${parDict.ligation_kit} \
+            -c ${parDict.guppy_config_file} \
             --compress_fastq \
             --disable_pings \
             --nested_output_folder \
