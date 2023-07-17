@@ -121,6 +121,9 @@ add_device = params.gpu ? '--device auto' : ''
 add_barcode_kits = parDict.barcode_kits == '""' ? '--detect_barcodes' : '--barcode_kits ' + parDict.barcode_kits
 process basecall {
 
+    errorStrategy 'retry'
+    maxRetries 3
+
     label params.gpu ? 'gpu_q30m' : 'q6h'
 
     input:
