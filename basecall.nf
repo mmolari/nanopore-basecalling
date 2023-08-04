@@ -144,7 +144,9 @@ process basecall {
             --disable_pings \
             --nested_output_folder \
             ${add_barcode_kits} \
-            ${add_device}
+            ${add_device} \
+            --enable_trim_barcodes \
+            --detect_mid_strand_barcodes
         """
 
 }
