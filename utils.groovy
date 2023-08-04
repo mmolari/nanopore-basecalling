@@ -34,7 +34,7 @@ def formatParamDict(parDict) {
     newParDict["parPrefix"] = parDict["parPrefix"]
 
     // check that values are consistent
-    keys = ["flow_cell_id", "flow_cell_type", "ligation_kit", "barcode_kits", "nanopore_data_root_dir"]
+    keys = ["flow_cell_id", "flow_cell_type", "kit", "barcode_kits", "guppy_config_file", "nanopore_data_root_dir"]
     for (k in keys) {
         if (!checkSame(parDict[k])) {
             throw new Exception("ERROR: not all values in column $k of file ${parDict.parPrefix}.tsv are the same")
