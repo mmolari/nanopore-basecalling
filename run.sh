@@ -3,7 +3,7 @@ nextflow run basecall.nf \
     --inputDir "$1/raw" \
     --outputDir "$1/basecalled" \
     --parameterFile "$1/params.tsv" \
-    --setWatcher true \
+    --setWatcher false \
     --gpu true \
     --liveStats true \
     -resume
